@@ -4,3 +4,5 @@ langchain-community
 python-dotenv
 unstructured[md]
 spacy
+kagglehub
+git+https://github.com/johnwmillr/LyricsGenius.git
