@@ -6,9 +6,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 load_dotenv()
 
-# This should print 'DEBUG: Key found: gsk_q...'
-# Initialize the ChatGroq model
-# Pro Tip: Set your key in your terminal/env so it's not in the code!
 llm = ChatGroq(
     model="llama-3.3-70b-versatile", 
     temperature=0, 
