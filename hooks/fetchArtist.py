@@ -1,50 +1,63 @@
+import billboard
 import pandas as pd
+import time
 
-# Install dependencies as needed:
-# pip install kagglehub[pandas-datasets]
-import kagglehub
-from kagglehub import KaggleDatasetAdapter
+# 1. Configuration
+chat_info = [
+    ['Hip-Hop / R&B', 'hot-r-b-hip-hop-songs'],
+    ['Rap', 'hot-rap-songs'],
+    ['Rock & Alternative', 'hot-rock-songs'],
+    ['Country', 'hot-country-songs'],
+    ['Dance / Electronic', 'hot-dance-electronic-songs'],
+    ['Latin', 'hot-latin-songs'],
+    ['Pop', 'pop-songs'],
+    ['Afrobeats', 'afrobeats-songs'],
+]
 
-# 1. SET THE FILE PATH HERE
-# This tells kagglehub which specific file inside the 'ludmin/billboard' dataset to load
-file_path = "hot100.csv" 
+years = range(1990, 1995) # 1990 to 2026
+master_data = []
 
-# Load the latest version
-df = kagglehub.load_dataset(
-  KaggleDatasetAdapter.PANDAS,
-  "ludmin/billboard",
-  file_path,
-)
- 
-# 2. Data Cleaning (Per your provided logic)
-# Convert '-' to 0 and change types to integers
-df['Weeks in Charts'] = df['Weeks in Charts'].replace('-', 0).astype(int)
-df['Last Week'] = df['Last Week'].replace('-', 0).astype(int)
+# 2. Execution Loop
+for year in years:
+    # We use the last Saturday of the year to simulate the "Year-End" state
+    target_date = f"{year}-12-25" 
+    print(f"--- Processing Year: {year} ---")
 
-# Convert Date to datetime object
-df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
+    for genre_title, slug in chat_info:
+        try:
+            # Fetch chart
+            chart = billboard.ChartData(slug, date=target_date)
+            print(f"  > Fetched {genre_title}")
 
-# 3. Filter and Extract Year
-df['Year'] = df['Date'].dt.year
-df_filtered = df[df['Year'] >= 1990].copy()
+            # Pull Top 100 entries and all fields from your image
+            for entry in chart[:100]:
+                master_data.append({
+                    'Year': year,
+                    'Genre_Category': genre_title,
+                    'Chart_Name': chart.title,
+                    'Artist': entry.artist,
+                    'Song_Title': entry.title,
+                    'Rank': entry.rank,
+                    'Peak_Pos': entry.peakPos,
+                    'Last_Pos': entry.lastPos,
+                    'Weeks_on_Chart': entry.weeks,
+                    'Is_New': entry.isNew,
+                    'Image_URL': entry.image
+                })
+            
+            # Short pause to be respectful to Billboard's servers
+            time.sleep(0.5) 
 
-# 4. Aggregate to find the best performance of each song per year
-# We group by Year, Artist, and Song to find the highest rank (minimum value)
-yearly_stats = df_filtered.groupby(['Year', 'Artist', 'Song']).agg({
-    'Rank': 'min',
-    'Date': 'min'
-}).reset_index()
+        except Exception as e:
+            # Some charts (like Afrobeats) didn't exist in 1990, so we skip errors
+            print(f"  ! Skipping {genre_title} for {year}: (Chart may not exist yet)")
 
-# 5. Rename for the final CSV format
-yearly_stats.rename(columns={
-    'Rank': 'Peak_Pos_That_Year', 
-    'Date': 'Full_Release_Year'
-}, inplace=True)
+# 3. Create DataFrame and Export
+df_final = pd.DataFrame(master_data)
 
-# 6. Sort by Year and Rank, then take the Top 100 for each year
-top_100_final = yearly_stats.sort_values(['Year', 'Peak_Pos_That_Year']).groupby('Year').head(100)
+# Save to the specific filename you requested
+df_final.to_csv('billyartitst.csv', index=False)
 
-# 7. Export to CSV
-top_100_final.to_csv('hot100.csv', index=False)
-
-print("File successfully created: hot100.csv")
+print("\n" + "="*30)
+print("File successfully created: billyartitst.csv")
+print(f"Total rows captured: {len(df_final)}")
