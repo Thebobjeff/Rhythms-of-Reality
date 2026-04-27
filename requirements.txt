@@ -5,5 +5,5 @@ python-dotenv
 unstructured[md]
 spacy
 kagglehub
-billboard
+spotipy
 git+https://github.com/johnwmillr/LyricsGenius.git
