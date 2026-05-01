@@ -5,15 +5,14 @@ import time
 from dotenv import load_dotenv
 import kagglehub
 from kagglehub import KaggleDatasetAdapter
-
-# Changed imports from Groq to Google Generative AI
-from langchain_google_genai import ChatGoogleGenerativeAI
+# Changed imports from Google GenAI to OpenAI
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 load_dotenv()
 
-# gemmini can handle larger batches, but we'll keep it small to ensure we don't hit rate limits or safety filters pls lower the risk of a whole batch failing 
+# OpenAI batching is stable, keeping BATCH_SIZE at 50 as requested
 BATCH_SIZE = 50
 
 GENRE_CATEGORIES = [
@@ -22,13 +21,13 @@ GENRE_CATEGORIES = [
     "Gospel/Christian", "Metal/Hard Rock", "Reggae", "Jazz/Blues", "Unknown"
 ]
 
-# Initialize Gemini LLM instead of Groq
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.1-pro-preview", # Or "gemini-1.5-pro"
+# Initialize OpenAI LLM instead of Gemini
+llm = ChatOpenAI(
+    model="gpt-4o", # You can also use "gpt-4o-mini" for lower cost
     temperature=0,
-    thinking_level="low",
-    google_api_key=os.getenv("GOOGLE_API_KEY")
+    openai_api_key=os.getenv("OPENAI_API_KEY")
 )
+# --- ADJUSTED AI PARTS END ---
 
 prompt_template = ChatPromptTemplate.from_template("{request}")
 parser = StrOutputParser()
@@ -41,10 +40,13 @@ def classify_artists_batch(artists: list) -> dict:
     request = f"""You are a music genre classifier.
 For each artist below, assign exactly ONE genre from this list: {categories}
 
-Return ONLY a valid JSON object. No intro, no outro, no markdown formatting.
-Format: {{"Artist Name": "Genre"}}
+Base your answer on the artist's PRIMARY genre.
+For featured artists like "Drake Featuring Nicki Minaj", classify by the FIRST/MAIN artist only.
+For artists known for R&B/Soul who also had pop crossover hits (e.g. Mariah Carey, Janet Jackson), classify as R&B/Soul
+Return ONLY a valid JSON object with no extra text, no markdown, no explanation.
+Format: {{"Artist Name": "Genre", "Artist Name 2": "Genre"}}
 
-Artists:
+Artists to classify:
 {artist_list}"""
 
     try:
@@ -60,7 +62,6 @@ Artists:
         return json.loads(clean_json.strip())
 
     except Exception as e:
-        # This will tell you EXACTLY why it failed (Rate limit, Safety, or JSON error)
         print(f"  Error in batch: {e}") 
         return {a: "Unknown" for a in artists}
 
@@ -84,9 +85,9 @@ df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
 
 # 3. Filter and Extract Year
 df['Year'] = df['Date'].dt.year
-# df_filtered = df[1995 >= 1990].copy()
 
-df_filtered = df[df['Year'] >= 1990].copy()
+# Filtering Songs from 2025 during testing, change back to 1990 for final run
+df_filtered = df[df['Year'] >= 2025].copy()
 
 # 4. Aggregate
 yearly_stats = df_filtered.groupby(['Year', 'Artist', 'Song']).agg({
@@ -103,12 +104,12 @@ yearly_stats.rename(columns={
 # 6. Sort and Top 100
 top_100_final = yearly_stats.sort_values(['Year', 'Peak_Pos_That_Year']).groupby('Year').head(100)
 
-# --- GEMINI INTEGRATION ---
+# --- OPENAI INTEGRATION ---
 
 unique_artists = top_100_final['Artist'].unique().tolist()
 artist_genre_map = {}
 
-print(f"--- Classifying {len(unique_artists)} unique artists using Gemini ---")
+print(f"--- Classifying {len(unique_artists)} unique artists using OpenAI ---")
 
 for i in range(0, len(unique_artists), BATCH_SIZE):
     batch = unique_artists[i : i + BATCH_SIZE]
@@ -126,6 +127,6 @@ for index, row in top_100_final.iterrows():
     print(f"Year: {row['Year']} | Artist: {row['Artist']} | Song: {row['Song']} | Genre: {row['Genre']}")
 
 # 7. Export to CSV
-top_100_final.to_csv('hot100_Gemini.csv', index=False)
+top_100_final.to_csv('C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_OpenAI.csv', index=False)
 
-print("\nFile successfully created: hot100Gemini.csv")
+print("\nFile successfully created: hot100_OpenAI.csv")

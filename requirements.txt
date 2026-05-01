@@ -1,8 +1,11 @@
 langchain-groq
 langchain-google-genai
+langchain-openai
 langchain-core
 langchain-community
 python-dotenv
+pandas
+pathlib
 unstructured[md]
 spacy
 kagglehub
