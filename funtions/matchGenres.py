@@ -29,19 +29,19 @@ merged = openAi_df.merge(
 # 'Year', 'Artist', 'Song', 'Peak_Pos_That_Year', 'Full_Release_Year'
 # 'Genre_OpenAI', 'Genre_Gemini', 'Genre_Groq'
 
-# --- 4. MAJORITY LOGIC FUNCTION ---
+# --- 4. Managed Democracy #FOR SUPER EARTH
 def calculate_majority(row):
-    g1 = str(row['Genre_OpenAI']).strip()
-    g2 = str(row['Genre_Gemini']).strip()
-    g3 = str(row['Genre_Groq']).strip()
+    openAi_Genres = str(row['Genre_OpenAI']).strip()
+    gemini_Genres = str(row['Genre_Gemini']).strip()
+    groq_Genres = str(row['Genre_Groq']).strip()
     
     # 1. If all match or 2/3 match
-    if g1 == g2:
-        return g1
-    if g1 == g3:
-        return g1
-    if g2 == g3:
-        return g2
+    if openAi_Genres == gemini_Genres:
+        return openAi_Genres
+    if openAi_Genres == groq_Genres:
+        return openAi_Genres
+    if gemini_Genres == groq_Genres:
+        return gemini_Genres
     
     # 2. If all three are different
     return "Unknown"

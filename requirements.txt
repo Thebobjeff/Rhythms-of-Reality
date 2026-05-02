@@ -9,5 +9,5 @@ pathlib
 unstructured[md]
 spacy
 kagglehub
-spotipy
+sentence-transformers
 git+https://github.com/johnwmillr/LyricsGenius.git

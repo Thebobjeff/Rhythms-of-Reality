@@ -1,4 +1,3 @@
-# First, install the library if you haven't: pip install sentence-transformers
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
