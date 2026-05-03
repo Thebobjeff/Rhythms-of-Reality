@@ -5,9 +5,9 @@ langchain-core
 langchain-community
 python-dotenv
 pandas
-pathlib
 unstructured[md]
 spacy
 kagglehub
 sentence-transformers
+tqdm
 git+https://github.com/johnwmillr/LyricsGenius.git
