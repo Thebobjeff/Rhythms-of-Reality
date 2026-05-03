@@ -1,34 +1,37 @@
-from sentence_transformers import SentenceTransformer
 import pandas as pd
 import os
+from sentence_transformers import SentenceTransformer
 
+def process_lyrics_to_vectors(input_path, output_path, column_name='Lyrics'):
+    """
+    Loads a CSV, generates embeddings for a specific column, 
+    and saves the result to a new CSV.
+    """
+    # 1. Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # 2. Load the model once
+    print("Loading model...")
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+    # 3. Load the data
+    print(f"Reading data from {input_path}...")
+    df = pd.read_csv(input_path)
+    
+    # 4. Generate Embeddings (Batching is much faster than .apply)
+    print("Generating embeddings... (this may take a moment)")
+    # We convert the column to a list and pass it to encode()
+    embeddings = model.encode(df[column_name].tolist())
+    
+    # Assign the list of vectors back to the dataframe
+    df['embeddings'] = embeddings.tolist()
+    
+    # 5. Save the data
+    df.to_csv(output_path, index=False)
+    print(f"Success! Saved to {output_path}")
 
-# --- 1. SETTINGS & FILE PATHS ---
-# Update these to your actual file names
-testFile = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\finalDatasetSample.csv'
-output_path = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\finalDatasetSample_Embeddings.csv'
+# --- HOW TO USE IT ---
+input_file = r'C:\Users\devon\Documents\GitHub\lang Chain\Test Project- git\data\CSV\finalDataset.csv'
+output_file = r'C:\Users\devon\Documents\GitHub\lang Chain\Test Project- git\data\CSV\finalDatasetEmbeddings.csv'
 
-
-# Ensure output directory exists
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-
-# --- 2. LOAD DATA ---
-file = pd.read_csv(testFile)
-
-
-#--- 3. GENERATE EMBEDDINGS ---
-# The model creates a 384-dimensional vector. Each number represents a specific feature of the text's meaning.
-# ```python
-# # This is a truncated view of the actual 384-dimension array    -> with the .tolist() method, we convert the numpy array to a regular Python list, which is easier to store in a CSV file.
-# array([ 0.0124, -0.4561,  0.8923, ..., -0.1102], dtype=float32) -> [0.0124, -0.4561, 0.8923, ..., -0.1102] 
-
-def generate_embeddings(text):
-    emBed = SentenceTransformer('all-MiniLM-L6-v2')
-    return emBed.encode(text).tolist()  # Convert numpy array to list for CSV storage
-
-# Adding in a new column 'embeddings' to the DataFrame, where each row contains the vector representation of the corresponding text in the 'lyrics' column.
-file['embeddings'] = file['Lyrics'].apply(generate_embeddings)
-
-file.to_csv(output_path, index=False)
-print("Files Converted to Vectors and saved to finalDatasetSample_Embeddings_Vectored.csv")
+process_lyrics_to_vectors(input_file, output_file)
