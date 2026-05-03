@@ -1,7 +1,10 @@
 import pandas as pd
 import os
 from sentence_transformers import SentenceTransformer
+from pathlib import Path
 
+current_script_path = Path(__file__).resolve()
+project_root = current_script_path.parent.parent
 Batch_Size = 50
 
 def process_lyrics_to_vectors(input_path, output_path, column_name='Lyrics'):
@@ -43,7 +46,8 @@ def process_lyrics_to_vectors(input_path, output_path, column_name='Lyrics'):
     print(f"Success! Saved to {output_path}")
 
 # --- HOW TO USE IT ---
-input_file = r'C:\Users\devon\Documents\GitHub\lang Chain\Test Project- git\data\CSV\finalDataset.csv'
-output_file = r'C:\Users\devon\Documents\GitHub\lang Chain\Test Project- git\data\CSV\finalDatasetEmbeddings.csv'
+input_file = project_root / "data" / "CSV" / "finalDataset.csv"
+output_file = project_root / "data" / "CSV" / "finalDatasetEmbeddings.csv"
+ 
 
 process_lyrics_to_vectors(input_file, output_file)

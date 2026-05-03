@@ -10,6 +10,10 @@ from kagglehub import KaggleDatasetAdapter
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from pathlib import Path
+
+current_script_path = Path(__file__).resolve()
+project_root = current_script_path.parent.parent
 
 load_dotenv()
 
@@ -71,7 +75,7 @@ Artists to classify:
 
 # 1. SET THE FILE PATH HERE
 # This tells kagglehub which specific file inside the 'ludmin/billboard' dataset to load
-file_path = "hot100.csv" 
+file_path = project_root / "data" / "CSV" / "hot100.csv" 
 
 # Load the latest version
 df = kagglehub.load_dataset(
@@ -132,6 +136,6 @@ for index, row in top_100_final.iterrows():
     print(f"Year: {row['Year']} | Artist: {row['Artist']} | Song: {row['Song']} | Genre: {row['Genre']}")
 
 # 7. Export to CSV
-top_100_final.to_csv('C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_Groq.csv', index=False)
+top_100_final.to_csv(project_root / "data" / "CSV" / "hot100_Groq.csv", index=False)
 
 print("\nFile successfully created: hot100Groq.csv")

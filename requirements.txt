@@ -6,6 +6,7 @@ langchain-community
 python-dotenv
 pandas
 unstructured[md]
+pathlib
 spacy
 kagglehub
 sentence-transformers

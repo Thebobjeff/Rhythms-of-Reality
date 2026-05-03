@@ -1,12 +1,16 @@
 import pandas as pd
 import os
+from pathlib import Path
+
+current_script_path = Path(__file__).resolve()
+project_root = current_script_path.parent.parent
 
 # --- 1. SETTINGS & FILE PATHS ---
 # Update these to your actual file names
-openAi_Path = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_OpenAI.csv'
-gem_Path = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_Gemini.csv'
-groq_Path = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_Groq.csv'
-output_path = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_Consolidated.csv'
+openAi_Path = project_root / "data" / "CSV" / "hot100_OpenAI.csv"
+gem_Path = project_root / "data" / "CSV" / "hot100_Gemini.csv"
+groq_Path = project_root / "data" / "CSV" / "hot100_Groq.csv"
+output_path = project_root / "data" / "CSV" / "hot100_Consolidated.csv"
 
 # Ensure output directory exists
 os.makedirs(os.path.dirname(output_path), exist_ok=True)

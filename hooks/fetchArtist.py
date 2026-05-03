@@ -1,6 +1,10 @@
 import billboard
 import pandas as pd
 import time
+from pathlib import Path
+
+current_script_path = Path(__file__).resolve()
+project_root = current_script_path.parent.parent
 
 # 1. Configuration
 chat_info = [
@@ -56,7 +60,7 @@ for year in years:
 df_final = pd.DataFrame(master_data)
 
 # Save to the specific filename you requested
-df_final.to_csv('billyartitst.csv', index=False)
+df_final.to_csv(project_root / "data" / "CSV" / "billyartitst.csv", index=False)
 
 print("\n" + "="*30)
 print("File successfully created: billyartitst.csv")

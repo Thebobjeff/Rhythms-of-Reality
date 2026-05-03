@@ -2,7 +2,7 @@ import os
 import csv
 import lyricsgenius
 from dotenv import load_dotenv
-import runpy
+from pathlib import Path
 import time
 from tqdm import tqdm
 
@@ -18,9 +18,11 @@ genius.verbose = False
 genius.remove_section_headers = True
 genius.skip_non_songs = True 
  
-input_file = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\hot100_Consolidated_Genres.csv'
-output_file = 'C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\data\\CSV\\finalDataset.csv'
-
+current_script_path = Path(__file__).resolve()
+project_root = current_script_path.parent.parent
+input_file = project_root / "data" / "CSV" / "hot100_Consolidated_Genres.csv"
+output_file = project_root / "data" / "CSV" / "finalDataset.CSV"
+ 
 def fetch_lyrics(row):
     """
     Fetches and formats lyrics for a single row.
