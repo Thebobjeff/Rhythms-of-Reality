@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import time
 from tqdm import tqdm
-
+import runpy
 Batch_Size = 50
 
 # 1. Setup Environment
@@ -88,5 +88,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-# print("Running lyricsToVectors.py...")
-# runpy.run_path('C:\\Users\\devon\\Documents\\GitHub\\lang Chain\\Test Project- git\\funtions\\lyricsToVectors.py')
+print("Running lyricsToVectors.py...")
+runpy.run_path( project_root / "data" / "CSV" / "lyricsToVectors.py" )

@@ -107,11 +107,46 @@ async def run_batch_processing(pairs_list):
     return genre_mapping
 
 # --- 4. Main Execution Logic ---
+# def process_dataframe(df, target_column='Genre'):
+#     """
+#     Identifies 'Unknown' values in the target column and fills them 
+#     using Artist and Song info.
+#     """
+#     # 1. Identify rows where the target column is "Unknown"
+#     mask = df[target_column] == "Unknown"
+    
+#     # 2. Get unique (Artist, Song) pairs to save API costs
+#     unknown_pairs = df.loc[mask, ['Artist', 'Song']].drop_duplicates().values.tolist()
+    
+#     if not unknown_pairs:
+#         print(f"No 'Unknown' values found in column '{target_column}'.")
+#         return df
 
+#     print(f"--- Fixing {len(unknown_pairs)} unique Artist-Song pairs ---")
+    
+#     # 3. Handle the Async Loop for different environments
+#     try:
+#         # Standard approach
+#         loop = asyncio.get_event_loop()
+#         new_genres_map = loop.run_until_complete(run_batch_processing(unknown_pairs))
+#     except RuntimeError:
+#         # Approach for Jupyter Notebooks / Interactive environments
+#         import nest_asyncio
+#         nest_asyncio.apply()
+#         new_genres_map = asyncio.run(run_batch_processing(unknown_pairs))
+
+#     # 4. Map the results back to the original dataframe
+#     # We use axis=1 to look up the (Artist, Song) tuple in our results map
+#     df.loc[mask, target_column] = df[mask].apply(
+#         lambda row: new_genres_map.get((row['Artist'], row['Song']), "Unknown"), 
+#         axis=1
+#     )
+    
+#     return df
 def process_dataframe(df, target_column='Genre'):
     """
-    Identifies 'Unknown' values in the target column and fills them 
-    using Artist and Song info.
+    Identifies 'Unknown' values in the target column, fills them 
+    using Artist and Song info, and removes duplicates.
     """
     # 1. Identify rows where the target column is "Unknown"
     mask = df[target_column] == "Unknown"
@@ -121,27 +156,34 @@ def process_dataframe(df, target_column='Genre'):
     
     if not unknown_pairs:
         print(f"No 'Unknown' values found in column '{target_column}'.")
-        return df
+        # Even if no unknowns, we should still ensure the existing DF is deduplicated
+        return df.drop_duplicates(subset=['Artist', 'Song'])
 
     print(f"--- Fixing {len(unknown_pairs)} unique Artist-Song pairs ---")
     
-    # 3. Handle the Async Loop for different environments
+    # 3. Handle the Async Loop
     try:
-        # Standard approach
         loop = asyncio.get_event_loop()
         new_genres_map = loop.run_until_complete(run_batch_processing(unknown_pairs))
     except RuntimeError:
-        # Approach for Jupyter Notebooks / Interactive environments
         import nest_asyncio
         nest_asyncio.apply()
         new_genres_map = asyncio.run(run_batch_processing(unknown_pairs))
 
     # 4. Map the results back to the original dataframe
-    # We use axis=1 to look up the (Artist, Song) tuple in our results map
     df.loc[mask, target_column] = df[mask].apply(
         lambda row: new_genres_map.get((row['Artist'], row['Song']), "Unknown"), 
         axis=1
     )
+
+    # --- NEW: Deduplication Step ---
+    # This removes any duplicate rows based on the combination of Artist and Song
+    # 'keep=first' ensures we keep one instance and throw away the rest
+    initial_count = len(df)
+    df = df.drop_duplicates(subset=['Artist', 'Song'], keep='first')
+    final_count = len(df)
+    
+    print(f"Deduplication complete: Removed {initial_count - final_count} duplicate rows.")
     
     return df
 

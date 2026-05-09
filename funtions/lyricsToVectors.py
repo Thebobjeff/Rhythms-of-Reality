@@ -46,8 +46,8 @@ def process_lyrics_to_vectors(input_path, output_path, column_name='Lyrics'):
     print(f"Success! Saved to {output_path}")
 
 # --- HOW TO USE IT ---
-input_file = project_root / "data" / "CSV" / "finalDataset.csv"
-output_file = project_root / "data" / "CSV" / "finalDatasetEmbeddings.csv"
+input_file = project_root / "data" / "CSV" / "cleaned_dataset_Final_1.1.csv"
+output_file = project_root / "data" / "CSV" / "finalDatasetEmbeddings_1.csv"
  
 
 process_lyrics_to_vectors(input_file, output_file)
