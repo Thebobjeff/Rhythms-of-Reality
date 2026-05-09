@@ -11,4 +11,5 @@ spacy
 kagglehub
 sentence-transformers
 tqdm
+matplotlib
 git+https://github.com/johnwmillr/LyricsGenius.git
